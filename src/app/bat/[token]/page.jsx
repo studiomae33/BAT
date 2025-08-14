@@ -296,7 +296,7 @@ export default function BATViewPage() {
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-blue-800">
-                  Message de l'expéditeur
+                  Message de l&apos;expéditeur
                 </h3>
                 <div className="mt-2 text-sm text-blue-700">
                   {batData.customMessage}

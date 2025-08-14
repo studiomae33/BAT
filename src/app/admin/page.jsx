@@ -236,7 +236,7 @@ export default function AdminPage() {
                 required
               />
               <p className="mt-1 text-sm text-gray-500">
-                Ce message sera inclus dans l'email envoyé au client
+                Ce message sera inclus dans l&apos;email envoyé au client
               </p>
             </div>
 
@@ -262,9 +262,9 @@ export default function AdminPage() {
           </h3>
           <ol className="list-decimal list-inside space-y-2 text-blue-800">
             <li>Uploadez votre fichier PDF (BAT) à valider</li>
-            <li>Saisissez l'adresse email du client</li>
-            <li>Rédigez un message personnalisé pour accompagner l'envoi</li>
-            <li>Cliquez sur "Envoyer le BAT"</li>
+            <li>Saisissez l&apos;adresse email du client</li>
+            <li>Rédigez un message personnalisé pour accompagner l&apos;envoi</li>
+            <li>Cliquez sur &quot;Envoyer le BAT&quot;</li>
             <li>Le client recevra un email avec un lien sécurisé pour visualiser et valider le BAT</li>
             <li>Vous serez notifié par email de la validation ou du refus du client</li>
           </ol>

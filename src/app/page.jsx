@@ -62,7 +62,7 @@ export default function Home() {
         Administration BAT
       </h2>
       <p className="mt-2 text-sm text-gray-700">
-        Connectez-vous pour gérer l'envoi des BAT
+        Connectez-vous pour gérer l&apos;envoi des BAT
       </p>
       
       {error && (

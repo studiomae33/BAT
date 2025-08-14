@@ -1,10 +1,10 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 import { CONFIG } from '@/lib/auth';
 
 /**
  * Configuration du transporteur email
  */
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: CONFIG.EMAIL.HOST,
   port: CONFIG.EMAIL.PORT,
   secure: false, // true pour 465, false pour autres ports

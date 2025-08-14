@@ -6,8 +6,8 @@ import bcrypt from 'bcryptjs';
  */
 export const CONFIG = {
   JWT_SECRET: process.env.JWT_SECRET || 'default-secret-change-me',
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@example.com',
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'password123',
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'test@test.fr',
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || '1234',
   BASE_URL: process.env.BASE_URL || 'http://localhost:3000',
   BAT_EXPIRATION_DAYS: parseInt(process.env.BAT_EXPIRATION_DAYS) || 7,
   PHONE_NUMBER: process.env.PHONE_NUMBER || '+33123456789',

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/Button'
+import EmailServiceSelector from '@/components/EmailServiceSelector'
 
 /**
  * Composant pour l'upload de fichier avec drag & drop
@@ -177,6 +178,11 @@ export default function AdminPage() {
 
       {/* Contenu principal */}
       <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        {/* Configuration Email */}
+        <div className="mb-8">
+          <EmailServiceSelector />
+        </div>
+
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-8">
             Envoyer un nouveau BAT

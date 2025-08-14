@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "name": "systeme-bat",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "env": {
+    "JWT_SECRET": "@jwt-secret",
+    "ADMIN_EMAIL": "@admin-email",
+    "ADMIN_PASSWORD": "@admin-password",
+    "EMAIL_HOST": "@email-host",
+    "EMAIL_PORT": "@email-port",
+    "EMAIL_USER": "@email-user",
+    "EMAIL_PASS": "@email-pass",
+    "EMAIL_FROM": "@email-from",
+    "BASE_URL": "@base-url",
+    "BAT_EXPIRATION_DAYS": "@bat-expiration-days",
+    "PHONE_NUMBER": "@phone-number"
+  },
+  "functions": {
+    "src/app/api/**/*.js": {
+      "maxDuration": 30
+    }
+  }
+}

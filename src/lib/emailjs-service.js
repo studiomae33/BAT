@@ -66,13 +66,22 @@ export function initEmailJS() {
 
 /**
  * Envoie un email avec le lien BAT au client
+ * @param {string} recipientEmail - Email du destinataire
+ * @param {string} batToken - Token du BAT
+ * @param {string} customMessage - Message personnalisé
+ * @param {string} originalFileName - Nom du fichier
+ * @param {string} templateId - ID du template personnalisé (optionnel)
+ * @param {object} templateParams - Paramètres supplémentaires pour le template (optionnel)
  */
-export async function sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName) {
+export async function sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName, templateId = null, templateParams = {}) {
   console.log('📧 Début sendBATEmailJS avec paramètres:', {
     recipientEmail,
     batToken: batToken ? `${batToken.substring(0, 20)}...` : 'UNDEFINED',
     originalFileName,
     hasCustomMessage: !!customMessage,
+    templateId: templateId || 'default',
+    hasTemplateParams: !!templateParams && Object.keys(templateParams).length > 0,
+    templateParamsKeys: Object.keys(templateParams),
     windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'SERVER_SIDE'
   });
 
@@ -99,16 +108,38 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
 
   const batUrl = `${window.location.origin}/bat/${batToken}`;
   
-  const templateParams = {
+  // Utiliser le template personnalisé si fourni, sinon le template par défaut
+  const actualTemplateId = templateId || EMAILJS_CONFIG.TEMPLATE_ID_BAT;
+  console.log('📋 Template utilisé:', actualTemplateId);
+  
+  // Paramètres de base pour le template
+  let emailParams = {
     to_email: recipientEmail,
     admin_email: EMAILJS_CONFIG.ADMIN_EMAIL,
     bat_url: batUrl,
     custom_message: customMessage || '',
     file_name: originalFileName || '',
-    expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
+    expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR'),
+    // URLs d'action pour le client
+    validation_url: `${window.location.origin}/client/${batToken}?action=validate`,
+    rejection_url: `${window.location.origin}/client/${batToken}?action=reject`
   };
+  
+  // Fusionner avec les paramètres personnalisés du template universel
+  if (templateParams && Object.keys(templateParams).length > 0) {
+    console.log('🔄 Fusion avec paramètres template personnalisés:', templateParams);
+    emailParams = {
+      ...emailParams,
+      ...templateParams,
+      // S'assurer que ces paramètres critiques ne sont pas écrasés
+      to_email: recipientEmail,
+      bat_url: batUrl,
+      validation_url: emailParams.validation_url,
+      rejection_url: emailParams.rejection_url
+    };
+  }
 
-  console.log('📝 Paramètres template EmailJS:', templateParams);
+  console.log('📝 Paramètres template EmailJS finaux:', emailParams);
 
   try {
     // Vérifier que EmailJS est disponible
@@ -122,12 +153,12 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
 
     console.log('📤 Tentative d\'envoi email avec EmailJS...');
     console.log('📤 Service ID:', EMAILJS_CONFIG.SERVICE_ID);
-    console.log('📤 Template ID:', EMAILJS_CONFIG.TEMPLATE_ID_BAT);
+    console.log('📤 Template ID:', actualTemplateId);
     
     const response = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID,
-      EMAILJS_CONFIG.TEMPLATE_ID_BAT,
-      templateParams
+      actualTemplateId,
+      emailParams
     );
     
     console.log('✅ Email BAT envoyé avec succès:', response);

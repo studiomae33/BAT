@@ -23,14 +23,23 @@ function getClientEmailService() {
 
 /**
  * Envoie un email BAT côté client (EmailJS uniquement)
+ * @param {string} recipientEmail - Email du destinataire
+ * @param {string} batToken - Token du BAT
+ * @param {string} customMessage - Message personnalisé
+ * @param {string} originalFileName - Nom du fichier
+ * @param {string} templateId - ID du template EmailJS (optionnel)
+ * @param {object} templateParams - Paramètres supplémentaires pour le template (optionnel)
  */
-export async function sendBATEmailClient(recipientEmail, batToken, customMessage, originalFileName) {
+export async function sendBATEmailClient(recipientEmail, batToken, customMessage, originalFileName, templateId = null, templateParams = {}) {
   console.log('🚀 sendBATEmailClient appelé avec:', {
     recipientEmail,
     hasToken: !!batToken,
     tokenLength: batToken?.length,
     hasMessage: !!customMessage,
     fileName: originalFileName,
+    templateId,
+    hasTemplateParams: !!templateParams && Object.keys(templateParams).length > 0,
+    templateParamsKeys: Object.keys(templateParams),
     timestamp: new Date().toISOString()
   });
 
@@ -62,8 +71,8 @@ export async function sendBATEmailClient(recipientEmail, batToken, customMessage
     console.log('⏳ Délai d\'initialisation...');
     await new Promise(resolve => setTimeout(resolve, 200));
     
-    console.log('📧 Appel sendBATEmailJS...');
-    const result = await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName);
+    console.log('📧 Appel sendBATEmailJS avec template personnalisé...');
+    const result = await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName, templateId, templateParams);
     
     console.log('📧 Résultat sendBATEmailJS:', result);
     console.log('📧 Type de résultat:', typeof result);

@@ -64,6 +64,17 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
   console.log('📝 Paramètres template EmailJS:', templateParams);
 
   try {
+    // Vérifier la configuration avant l'envoi
+    if (!EMAILJS_CONFIG.SERVICE_ID || !EMAILJS_CONFIG.TEMPLATE_ID_BAT) {
+      throw new Error('Configuration EmailJS incomplète - Service ID ou Template manquant');
+    }
+    
+    // Vérifier que EmailJS est disponible
+    if (!emailjs || !emailjs.send) {
+      throw new Error('EmailJS non initialisé ou library non disponible');
+    }
+
+    console.log('📤 Envoi email avec EmailJS...');
     const response = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID,
       EMAILJS_CONFIG.TEMPLATE_ID_BAT,
@@ -77,9 +88,27 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
     console.error('❌ Détails erreur:', {
       message: error.message,
       status: error.status,
-      text: error.text
+      text: error.text,
+      type: typeof error,
+      keys: Object.keys(error || {})
     });
-    return { success: false, error: error.message };
+    
+    // Gestion robuste des différents types d'erreurs EmailJS
+    let errorMessage = 'Erreur inconnue lors de l\'envoi';
+    
+    if (error.text) {
+      errorMessage = error.text;
+    } else if (error.message) {
+      errorMessage = error.message;
+    } else if (error.status) {
+      errorMessage = `Erreur EmailJS (${error.status})`;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error.toString && error.toString() !== '[object Object]') {
+      errorMessage = error.toString();
+    }
+    
+    return { success: false, error: errorMessage };
   }
 }
 

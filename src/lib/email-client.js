@@ -25,19 +25,36 @@ function getClientEmailService() {
  * Envoie un email BAT côté client (EmailJS uniquement)
  */
 export async function sendBATEmailClient(recipientEmail, batToken, customMessage, originalFileName) {
+  console.log('🚀 sendBATEmailClient appelé avec:', {
+    recipientEmail,
+    hasToken: !!batToken,
+    hasMessage: !!customMessage,
+    fileName: originalFileName
+  });
+
   const service = getClientEmailService();
   
   if (service !== 'emailjs') {
     throw new Error('EmailJS non configuré');
   }
 
-  // Import dynamique pour éviter les erreurs SSR
-  const { sendBATEmailJS, initEmailJS } = await import('./emailjs-service');
-  
-  // Initialiser EmailJS
-  initEmailJS();
-  
-  return await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName);
+  try {
+    // Import dynamique pour éviter les erreurs SSR
+    const { sendBATEmailJS, initEmailJS } = await import('./emailjs-service');
+    
+    console.log('🔧 Initialisation EmailJS...');
+    // Initialiser EmailJS
+    initEmailJS();
+    
+    // Petit délai pour s'assurer de l'initialisation
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    console.log('📧 Appel sendBATEmailJS...');
+    return await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName);
+  } catch (error) {
+    console.error('❌ Erreur dans sendBATEmailClient:', error);
+    throw error;
+  }
 }
 
 /**

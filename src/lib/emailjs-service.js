@@ -18,7 +18,24 @@ const EMAILJS_CONFIG = {
  */
 export function initEmailJS() {
   if (typeof window !== 'undefined') {
-    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+    console.log('🔧 Initialisation EmailJS avec:', {
+      publicKey: EMAILJS_CONFIG.PUBLIC_KEY ? `${EMAILJS_CONFIG.PUBLIC_KEY.substring(0, 10)}...` : 'UNDEFINED',
+      serviceId: EMAILJS_CONFIG.SERVICE_ID ? `${EMAILJS_CONFIG.SERVICE_ID.substring(0, 10)}...` : 'UNDEFINED'
+    });
+    
+    if (!EMAILJS_CONFIG.PUBLIC_KEY) {
+      throw new Error('PUBLIC_KEY EmailJS non définie');
+    }
+    
+    try {
+      emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY);
+      console.log('✅ EmailJS initialisé avec succès');
+    } catch (error) {
+      console.error('❌ Erreur initialisation EmailJS:', error);
+      throw error;
+    }
+  } else {
+    console.log('⚠️ initEmailJS appelé côté serveur - ignoré');
   }
 }
 
@@ -26,6 +43,13 @@ export function initEmailJS() {
  * Envoie un email avec le lien BAT au client
  */
 export async function sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName) {
+  console.log('📧 Début sendBATEmailJS avec paramètres:', {
+    recipientEmail,
+    batToken: batToken ? `${batToken.substring(0, 20)}...` : 'UNDEFINED',
+    originalFileName,
+    hasCustomMessage: !!customMessage
+  });
+
   const batUrl = `${window.location.origin}/bat/${batToken}`;
   
   const templateParams = {
@@ -36,6 +60,8 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
     file_name: originalFileName,
     expiration_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')
   };
+
+  console.log('📝 Paramètres template EmailJS:', templateParams);
 
   try {
     const response = await emailjs.send(
@@ -48,6 +74,11 @@ export async function sendBATEmailJS(recipientEmail, batToken, customMessage, or
     return { success: true, response };
   } catch (error) {
     console.error('❌ Erreur envoi email BAT:', error);
+    console.error('❌ Détails erreur:', {
+      message: error.message,
+      status: error.status,
+      text: error.text
+    });
     return { success: false, error: error.message };
   }
 }

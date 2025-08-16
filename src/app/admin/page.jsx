@@ -130,11 +130,11 @@ export default function AdminPage() {
         // Si l'API indique qu'il faut envoyer l'email côté client
         if (data.needsEmailSend) {
           try {
-            // Importer dynamiquement EmailJS
-            const { sendBATEmailJS } = await import('@/lib/emailjs-service')
+            // Utiliser la fonction client qui gère l'initialisation
+            const { sendBATEmailClient } = await import('@/lib/email-client')
             
-            console.log('📧 Envoi email via EmailJS...')
-            const emailResult = await sendBATEmailJS(
+            console.log('📧 Envoi email via service client...')
+            const emailResult = await sendBATEmailClient(
               data.recipientEmail, 
               data.batToken, 
               data.customMessage, 

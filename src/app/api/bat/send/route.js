@@ -3,7 +3,6 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { verifyAuthToken, generateBATId, generateBATToken } from '@/lib/auth';
 import { createBAT } from '@/lib/storage';
-import { sendBATEmailSMTP } from '@/lib/email-server';
 
 /**
  * API pour uploader et envoyer un BAT
@@ -83,21 +82,17 @@ export async function POST(request) {
     // Générer le token pour le lien BAT
     const batToken = generateBATToken(recipientEmail, batId);
 
-    // Envoyer l'email au client
-    const emailResult = await sendBATEmailSMTP(recipientEmail, batToken, customMessage);
-
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { error: 'Erreur lors de l\'envoi de l\'email' },
-        { status: 500 }
-      );
-    }
-
+    // Retourner les données pour que le client puisse envoyer l'email via EmailJS
     return NextResponse.json({
       success: true,
-      message: 'BAT envoyé avec succès',
+      message: 'BAT créé avec succès',
       batId,
+      batToken,
       recipientEmail,
+      customMessage,
+      originalFileName: file.name,
+      // Indique qu'il faut envoyer l'email côté client
+      needsEmailSend: true
     });
 
   } catch (error) {

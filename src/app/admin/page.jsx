@@ -127,10 +127,45 @@ export default function AdminPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ 
-          type: 'success', 
-          text: `BAT envoyé avec succès à ${data.recipientEmail}` 
-        })
+        // Si l'API indique qu'il faut envoyer l'email côté client
+        if (data.needsEmailSend) {
+          try {
+            // Importer dynamiquement EmailJS
+            const { sendBATEmailJS } = await import('@/lib/emailjs-service')
+            
+            console.log('📧 Envoi email via EmailJS...')
+            const emailResult = await sendBATEmailJS(
+              data.recipientEmail, 
+              data.batToken, 
+              data.customMessage, 
+              data.originalFileName
+            )
+            
+            if (emailResult.success) {
+              setMessage({ 
+                type: 'success', 
+                text: `BAT envoyé avec succès à ${data.recipientEmail}` 
+              })
+            } else {
+              setMessage({ 
+                type: 'error', 
+                text: `BAT créé mais erreur d'envoi email: ${emailResult.error}` 
+              })
+            }
+          } catch (emailError) {
+            console.error('❌ Erreur envoi email:', emailError)
+            setMessage({ 
+              type: 'warning', 
+              text: 'BAT créé avec succès, mais erreur lors de l\'envoi de l\'email. Vérifiez la configuration EmailJS.' 
+            })
+          }
+        } else {
+          setMessage({ 
+            type: 'success', 
+            text: `BAT envoyé avec succès à ${data.recipientEmail}` 
+          })
+        }
+        
         // Réinitialiser le formulaire
         setSelectedFile(null)
         setRecipientEmail('')
@@ -139,6 +174,7 @@ export default function AdminPage() {
         setMessage({ type: 'error', text: data.error || 'Erreur lors de l\'envoi' })
       }
     } catch (error) {
+      console.error('❌ Erreur globale:', error)
       setMessage({ type: 'error', text: 'Erreur de connexion au serveur' })
     } finally {
       setIsLoading(false)
@@ -190,6 +226,8 @@ export default function AdminPage() {
             <div className={`mb-6 rounded-md p-4 ${
               message.type === 'success' 
                 ? 'bg-green-50 text-green-700 border border-green-200' 
+                : message.type === 'warning'
+                ? 'bg-yellow-50 text-yellow-700 border border-yellow-200'
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               {message.text}

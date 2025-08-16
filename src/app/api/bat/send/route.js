@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import path from 'path';
 import { verifyAuthToken, generateBATId, generateBATToken } from '@/lib/auth';
 import { createBAT } from '@/lib/storage';
 
@@ -52,31 +50,32 @@ export async function POST(request) {
     // Générer un ID unique pour le BAT
     const batId = generateBATId();
     
-    // Créer le nom de fichier sécurisé
-    const fileName = `${batId}.pdf`;
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    const filePath = path.join(uploadsDir, fileName);
-
-    // Créer le dossier uploads s'il n'existe pas
-    const fs = require('fs');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    // Sauvegarder le fichier
+    // Sur Vercel, on ne peut pas écrire dans le système de fichiers
+    // On va stocker le fichier en base64 dans le storage temporairement
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    const base64Content = buffer.toString('base64');
+    
+    console.log('📄 Fichier traité:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      bufferSize: buffer.length
+    });
 
-    // Créer l'entrée BAT dans le stockage
+    // Créer l'entrée BAT dans le stockage avec le contenu en base64
     const batData = {
       id: batId,
-      filename: fileName,
+      filename: `${batId}.pdf`, // nom virtuel
       originalName: file.name,
       recipientEmail,
       customMessage,
+      fileContent: base64Content, // Stocker le contenu
+      fileSize: file.size,
+      fileType: file.type
     };
 
+    console.log('💾 Création BAT dans le storage...');
     await createBAT(batData);
 
     // Générer le token pour le lien BAT
@@ -97,8 +96,18 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Erreur upload BAT:', error);
+    console.error('Stack trace:', error.stack);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      code: error.code
+    });
+    
     return NextResponse.json(
-      { error: 'Erreur serveur lors de l\'upload' },
+      { 
+        error: 'Erreur serveur lors de l\'upload',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      },
       { status: 500 }
     );
   }

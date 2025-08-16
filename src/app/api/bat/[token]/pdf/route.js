@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyBATToken } from '@/lib/auth';
 import { getBATById } from '@/lib/storage';
-import path from 'path';
-import fs from 'fs';
 
 /**
  * API pour servir le fichier PDF d'un BAT
@@ -38,18 +36,16 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Récupérer le fichier PDF
-    const filePath = path.join(process.cwd(), 'uploads', bat.filename);
-    
-    if (!fs.existsSync(filePath)) {
+    // Récupérer le contenu du fichier depuis le storage
+    if (!bat.fileContent) {
       return NextResponse.json(
-        { error: 'Fichier PDF non trouvé' },
+        { error: 'Contenu PDF non trouvé' },
         { status: 404 }
       );
     }
 
-    // Lire le fichier
-    const fileBuffer = fs.readFileSync(filePath);
+    // Convertir le base64 en buffer
+    const fileBuffer = Buffer.from(bat.fileContent, 'base64');
 
     // Retourner le PDF avec les bons headers
     return new NextResponse(fileBuffer, {

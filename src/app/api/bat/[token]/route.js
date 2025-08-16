@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyBATToken } from '@/lib/auth';
 import { getBATById } from '@/lib/storage';
-import path from 'path';
-import fs from 'fs';
 
 /**
  * API pour récupérer un BAT avec son token
@@ -38,11 +36,10 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Vérifier que le fichier PDF existe
-    const filePath = path.join(process.cwd(), 'uploads', bat.filename);
-    if (!fs.existsSync(filePath)) {
+    // Vérifier que le contenu du fichier existe
+    if (!bat.fileContent) {
       return NextResponse.json(
-        { error: 'Fichier PDF non trouvé' },
+        { error: 'Contenu PDF non trouvé' },
         { status: 404 }
       );
     }

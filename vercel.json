@@ -3,23 +3,5 @@
     "src/app/api/**/*.js": {
       "maxDuration": 30
     }
-  },
-  "env": {
-    "JWT_SECRET": "@jwt-secret",
-    "ADMIN_EMAIL": "@admin-email",
-    "ADMIN_PASSWORD": "@admin-password",
-    "EMAIL_HOST": "@email-host",
-    "EMAIL_PORT": "@email-port",
-    "EMAIL_USER": "@email-user",
-    "EMAIL_PASS": "@email-pass",
-    "EMAIL_FROM": "@email-from",
-    "BASE_URL": "@base-url",
-    "BAT_EXPIRATION_DAYS": "@bat-expiration-days",
-    "PHONE_NUMBER": "@phone-number",
-    "NEXT_PUBLIC_EMAILJS_SERVICE_ID": "@emailjs-service-id",
-    "NEXT_PUBLIC_EMAILJS_TEMPLATE_BAT": "@emailjs-template-bat",
-    "NEXT_PUBLIC_EMAILJS_TEMPLATE_VALIDATION": "@emailjs-template-validation",
-    "NEXT_PUBLIC_EMAILJS_TEMPLATE_REJECTION": "@emailjs-template-rejection",
-    "NEXT_PUBLIC_EMAILJS_PUBLIC_KEY": "@emailjs-public-key"
   }
 }

@@ -28,32 +28,90 @@ export async function sendBATEmailClient(recipientEmail, batToken, customMessage
   console.log('🚀 sendBATEmailClient appelé avec:', {
     recipientEmail,
     hasToken: !!batToken,
+    tokenLength: batToken?.length,
     hasMessage: !!customMessage,
-    fileName: originalFileName
+    fileName: originalFileName,
+    timestamp: new Date().toISOString()
   });
 
   const service = getClientEmailService();
+  console.log('📧 Service email détecté:', service);
   
   if (service !== 'emailjs') {
-    throw new Error('EmailJS non configuré');
+    const error = 'EmailJS non configuré - variables d\'environnement manquantes';
+    console.error('❌', error);
+    throw new Error(error);
   }
 
   try {
+    console.log('📦 Import dynamique du service EmailJS...');
     // Import dynamique pour éviter les erreurs SSR
     const { sendBATEmailJS, initEmailJS } = await import('./emailjs-service');
     
     console.log('🔧 Initialisation EmailJS...');
     // Initialiser EmailJS
-    initEmailJS();
+    try {
+      initEmailJS();
+      console.log('✅ EmailJS initialisé avec succès');
+    } catch (initError) {
+      console.error('❌ Erreur initialisation EmailJS:', initError);
+      throw new Error(`Erreur initialisation EmailJS: ${initError.message}`);
+    }
     
     // Petit délai pour s'assurer de l'initialisation
-    await new Promise(resolve => setTimeout(resolve, 100));
+    console.log('⏳ Délai d\'initialisation...');
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     console.log('📧 Appel sendBATEmailJS...');
-    return await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName);
+    const result = await sendBATEmailJS(recipientEmail, batToken, customMessage, originalFileName);
+    
+    console.log('📧 Résultat sendBATEmailJS:', result);
+    console.log('📧 Type de résultat:', typeof result);
+    
+    if (!result) {
+      console.error('❌ sendBATEmailJS a retourné undefined/null');
+      return {
+        success: false,
+        error: 'sendBATEmailJS a retourné une valeur invalide (undefined/null)',
+        details: {
+          timestamp: new Date().toISOString(),
+          service: 'emailjs'
+        }
+      };
+    }
+    
+    // S'assurer que le résultat a la structure attendue
+    if (typeof result !== 'object' || typeof result.success !== 'boolean') {
+      console.error('❌ sendBATEmailJS a retourné un format invalide:', result);
+      return {
+        success: false,
+        error: 'sendBATEmailJS a retourné un format invalide',
+        details: {
+          timestamp: new Date().toISOString(),
+          service: 'emailjs',
+          actualResult: result
+        }
+      };
+    }
+    
+    return result;
   } catch (error) {
     console.error('❌ Erreur dans sendBATEmailClient:', error);
-    throw error;
+    console.error('❌ Stack trace:', error.stack);
+    
+    // S'assurer qu'on retourne un objet d'erreur properly formaté
+    const errorMessage = error?.message || error?.text || error?.toString?.() || 'Erreur inconnue lors de l\'envoi';
+    
+    // Ne pas throw, retourner l'erreur pour que l'UI puisse l'afficher
+    return {
+      success: false,
+      error: errorMessage,
+      details: {
+        originalError: error,
+        timestamp: new Date().toISOString(),
+        service: 'emailjs'
+      }
+    };
   }
 }
 

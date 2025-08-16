@@ -134,6 +134,13 @@ export default function AdminPage() {
             const { sendBATEmailClient } = await import('@/lib/email-client')
             
             console.log('📧 Envoi email via service client...')
+            console.log('📧 Paramètres:', {
+              recipientEmail: data.recipientEmail,
+              hasToken: !!data.batToken,
+              hasMessage: !!data.customMessage,
+              hasFileName: !!data.originalFileName
+            })
+            
             const emailResult = await sendBATEmailClient(
               data.recipientEmail, 
               data.batToken, 
@@ -141,15 +148,28 @@ export default function AdminPage() {
               data.originalFileName
             )
             
-            if (emailResult.success) {
+            console.log('📧 Résultat sendBATEmailClient:', emailResult)
+            console.log('📧 Type du résultat:', typeof emailResult)
+            console.log('📧 emailResult.success:', emailResult?.success)
+            
+            // Vérifier si le résultat est undefined ou null
+            if (!emailResult) {
+              console.error('❌ emailResult est undefined ou null')
+              setMessage({ 
+                type: 'error', 
+                text: 'BAT créé mais erreur d\'envoi email: sendBATEmailClient a retourné undefined' 
+              })
+            } else if (emailResult.success) {
               setMessage({ 
                 type: 'success', 
                 text: `BAT envoyé avec succès à ${data.recipientEmail}` 
               })
             } else {
+              const errorMsg = emailResult.error || 'Erreur inconnue'
+              console.error('❌ Erreur d\'envoi:', errorMsg)
               setMessage({ 
                 type: 'error', 
-                text: `BAT créé mais erreur d'envoi email: ${emailResult.error}` 
+                text: `BAT créé mais erreur d'envoi email: ${errorMsg}` 
               })
             }
           } catch (emailError) {

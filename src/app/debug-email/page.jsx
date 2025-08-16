@@ -98,7 +98,7 @@ export default function EmailDebugPage() {
 
         {/* Variables d'environnement */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Variables d'environnement</h2>
+          <h2 className="text-xl font-semibold mb-4">Variables d&apos;environnement</h2>
           <div className="space-y-2">
             {Object.entries(envVars).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between">

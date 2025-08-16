@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{action_type}} - Studio MAE</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px;
+        }
+        .action-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-bat {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-validation {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .badge-rejection {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .message {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .details {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .details h3 {
+            margin: 0 0 15px 0;
+            color: #1e293b;
+            font-size: 18px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #64748b;
+        }
+        .detail-value {
+            color: #1e293b;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-1px);
+        }
+        .button-validate {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .button-reject {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .footer {
+            background-color: #f1f5f9;
+            padding: 30px 40px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Studio MAE</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Système de gestion BAT</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Action Badge -->
+            <div class="action-badge badge-{{action_type}}">
+                {{action_type}}
+            </div>
+
+            <!-- Message principal -->
+            <div class="message">
+                {{#if message}}
+                    {{{message}}}
+                {{else}}
+                    {{#eq action_type "bat"}}
+                        <p><strong>Bonjour,</strong></p>
+                        <p>Un nouveau BAT est disponible pour validation. Veuillez consulter le document ci-joint et nous faire part de votre retour.</p>
+                    {{/eq}}
+                    {{#eq action_type "validation"}}
+                        <p><strong>Validation confirmée !</strong></p>
+                        <p>Le BAT a été validé avec succès. Nous procédons maintenant à la finalisation du projet.</p>
+                    {{/eq}}
+                    {{#eq action_type "rejection"}}
+                        <p><strong>BAT refusé</strong></p>
+                        <p>Le BAT a été refusé. Nous prenons en compte vos commentaires et vous proposerons une nouvelle version.</p>
+                    {{/eq}}
+                {{/if}}
+            </div>
+
+            <!-- Détails du BAT -->
+            <div class="details">
+                <h3>📋 Détails du BAT</h3>
+                {{#if bat_id}}
+                <div class="detail-item">
+                    <span class="detail-label">ID BAT :</span>
+                    <span class="detail-value">{{bat_id}}</span>
+                </div>
+                {{/if}}
+                {{#if file_name}}
+                <div class="detail-item">
+                    <span class="detail-label">Fichier :</span>
+                    <span class="detail-value">{{file_name}}</span>
+                </div>
+                {{/if}}
+                {{#if recipient_email}}
+                <div class="detail-item">
+                    <span class="detail-label">Destinataire :</span>
+                    <span class="detail-value">{{recipient_email}}</span>
+                </div>
+                {{/if}}
+                {{#if date}}
+                <div class="detail-item">
+                    <span class="detail-label">Date :</span>
+                    <span class="detail-value">{{date}}</span>
+                </div>
+                {{/if}}
+                {{#if admin_email}}
+                <div class="detail-item">
+                    <span class="detail-label">Expéditeur :</span>
+                    <span class="detail-value">{{admin_email}}</span>
+                </div>
+                {{/if}}
+            </div>
+
+            <!-- Boutons d'action (seulement pour l'envoi de BAT) -->
+            {{#eq action_type "bat"}}
+            <div style="text-align: center; margin: 30px 0;">
+                <p><strong>Actions disponibles :</strong></p>
+                {{#if validation_url}}
+                <a href="{{validation_url}}" class="button button-validate">✅ Valider le BAT</a>
+                {{/if}}
+                {{#if rejection_url}}
+                <a href="{{rejection_url}}" class="button button-reject">❌ Refuser le BAT</a>
+                {{/if}}
+            </div>
+            {{/eq}}
+
+            <!-- Message complémentaire -->
+            {{#if additional_message}}
+            <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+                <p style="margin: 0; color: #92400e;">
+                    <strong>Note :</strong> {{{additional_message}}}
+                </p>
+            </div>
+            {{/if}}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Studio MAE</strong></p>
+            <p>Ce message a été envoyé automatiquement par notre système de gestion BAT.</p>
+            <p>Pour toute question, contactez-nous à <a href="mailto:contact@studiomae.fr">contact@studiomae.fr</a></p>
+        </div>
+    </div>
+</body>
+</html>

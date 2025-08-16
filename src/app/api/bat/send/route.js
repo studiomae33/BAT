@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { verifyAuthToken, generateBATId, generateBATToken } from '@/lib/auth';
 import { createBAT } from '@/lib/storage';
-import { sendBATEmail } from '@/lib/email';
+import { sendBATEmailSMTP } from '@/lib/email-server';
 
 /**
  * API pour uploader et envoyer un BAT
@@ -84,7 +84,7 @@ export async function POST(request) {
     const batToken = generateBATToken(recipientEmail, batId);
 
     // Envoyer l'email au client
-    const emailResult = await sendBATEmail(recipientEmail, batToken, customMessage);
+    const emailResult = await sendBATEmailSMTP(recipientEmail, batToken, customMessage);
 
     if (!emailResult.success) {
       return NextResponse.json(

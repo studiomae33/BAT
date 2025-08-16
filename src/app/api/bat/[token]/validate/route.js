@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyBATToken } from '@/lib/auth';
 import { getBATById, updateBATStatus } from '@/lib/storage';
-import { sendValidationEmail } from '@/lib/email';
+import { sendValidationEmailSMTP } from '@/lib/email-server';
 
 /**
  * API pour valider un BAT
@@ -49,7 +49,7 @@ export async function POST(request, { params }) {
     await updateBATStatus(decodedToken.batId, 'validated');
 
     // Envoyer l'email de validation à l'admin
-    const emailResult = await sendValidationEmail(decodedToken.batId, bat.recipientEmail);
+    const emailResult = await sendValidationEmailSMTP(bat);
 
     if (!emailResult.success) {
       console.error('Erreur envoi email validation:', emailResult.error);

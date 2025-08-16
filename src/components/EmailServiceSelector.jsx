@@ -2,41 +2,23 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/Button';
+import { getEmailServiceInfo, testEmailServiceClient } from '@/lib/email-client';
 
 export default function EmailServiceSelector() {
-  const [emailService, setEmailService] = useState('loading');
+  const [emailServiceInfo, setEmailServiceInfo] = useState(null);
   const [testResult, setTestResult] = useState(null);
 
   useEffect(() => {
-    detectEmailService();
+    // Obtenir les informations sur le service email
+    const serviceInfo = getEmailServiceInfo();
+    setEmailServiceInfo(serviceInfo);
   }, []);
-
-  const detectEmailService = () => {
-    const hasEmailJS = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID && 
-                       process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-    const hasSMTP = process.env.EMAIL_HOST;
-
-    if (hasEmailJS) {
-      setEmailService('emailjs');
-    } else if (hasSMTP) {
-      setEmailService('smtp');
-    } else {
-      setEmailService('none');
-    }
-  };
 
   const testEmailService = async () => {
     setTestResult('testing');
     
     try {
-      const { sendBATEmail } = await import('@/lib/email-hybrid');
-      const result = await sendBATEmail(
-        'test@example.com',
-        'test-token',
-        'Test de configuration email',
-        'test.pdf'
-      );
-      
+      const result = await testEmailServiceClient();
       setTestResult(result.success ? 'success' : 'error');
     } catch (error) {
       setTestResult('error');
@@ -44,41 +26,35 @@ export default function EmailServiceSelector() {
   };
 
   const getServiceIcon = () => {
-    switch (emailService) {
+    if (!emailServiceInfo) return '⏳';
+    
+    switch (emailServiceInfo.service) {
       case 'emailjs': return '📧';
-      case 'smtp': return '🔧';
       case 'none': return '❌';
       default: return '⏳';
     }
   };
 
   const getServiceName = () => {
-    switch (emailService) {
-      case 'emailjs': return 'EmailJS (Recommandé)';
-      case 'smtp': return 'SMTP Traditionnel';
-      case 'none': return 'Aucun service configuré';
-      default: return 'Détection...';
-    }
+    if (!emailServiceInfo) return 'Chargement...';
+    
+    return emailServiceInfo.type || 'Service inconnu';
   };
 
   const getConfigInstructions = () => {
-    switch (emailService) {
+    if (!emailServiceInfo) return null;
+    
+    switch (emailServiceInfo.service) {
       case 'emailjs':
         return (
           <div className="text-sm text-green-700">
             ✅ EmailJS configuré et prêt à utiliser
           </div>
         );
-      case 'smtp':
-        return (
-          <div className="text-sm text-blue-700">
-            ⚙️ SMTP configuré. Considérez EmailJS pour plus de simplicité.
-          </div>
-        );
       case 'none':
         return (
           <div className="text-sm text-red-700">
-            ❌ Configurez EmailJS ou SMTP pour envoyer des emails
+            ❌ Configurez EmailJS pour envoyer des emails
           </div>
         );
       default:
@@ -103,7 +79,7 @@ export default function EmailServiceSelector() {
           </div>
         </div>
         
-        {emailService !== 'none' && (
+        {emailServiceInfo?.service !== 'none' && (
           <Button
             onClick={testEmailService}
             variant="outline"
@@ -128,7 +104,7 @@ export default function EmailServiceSelector() {
         </div>
       )}
 
-      {emailService === 'none' && (
+      {emailServiceInfo?.service === 'none' && (
         <div className="mt-4 p-4 bg-yellow-50 rounded-md">
           <h4 className="font-medium text-yellow-800 mb-2">
             🚀 Configuration rapide avec EmailJS

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyBATToken } from '@/lib/auth';
 import { getBATById, updateBATStatus } from '@/lib/storage';
-import { sendRejectionEmail } from '@/lib/email';
+import { sendRejectionEmailSMTP } from '@/lib/email-server';
 
 /**
  * API pour refuser un BAT
@@ -52,11 +52,7 @@ export async function POST(request, { params }) {
     });
 
     // Envoyer l'email de refus à l'admin
-    const emailResult = await sendRejectionEmail(
-      decodedToken.batId, 
-      bat.recipientEmail, 
-      rejectionMessage
-    );
+    const emailResult = await sendRejectionEmailSMTP(bat, rejectionMessage);
 
     if (!emailResult.success) {
       console.error('Erreur envoi email refus:', emailResult.error);

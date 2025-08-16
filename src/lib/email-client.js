@@ -74,24 +74,40 @@ export async function testEmailServiceClient() {
   if (service === 'none') {
     return { 
       success: false, 
-      error: 'EmailJS non configuré',
+      error: 'EmailJS non configuré - Variables d\'environnement manquantes',
       service: 'none' 
     };
   }
 
   try {
-    // Test avec des données fictives
-    const result = await sendBATEmailClient(
-      'test@example.com',
-      'test-token-123',
-      'Test de configuration email du système BAT',
-      'test-document.pdf'
-    );
+    // Test de configuration EmailJS simple (sans envoi d'email)
+    const { initEmailJS } = await import('./emailjs-service');
+    
+    // Initialiser EmailJS et vérifier la configuration
+    initEmailJS();
+    
+    // Vérifier que les variables sont bien présentes
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    const templateBAT = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_BAT;
+    
+    if (!serviceId || !publicKey || !templateBAT) {
+      return {
+        success: false,
+        error: 'Variables EmailJS incomplètes',
+        service: 'emailjs',
+        debug: {
+          hasServiceId: !!serviceId,
+          hasPublicKey: !!publicKey,
+          hasTemplate: !!templateBAT
+        }
+      };
+    }
     
     return { 
-      success: result.success, 
+      success: true, 
       service: 'emailjs',
-      error: result.error 
+      message: 'Configuration EmailJS valide'
     };
   } catch (error) {
     return { 

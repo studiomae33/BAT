@@ -14,7 +14,6 @@ export async function GET() {
   console.log('ADMIN_EMAIL:', adminEmail)
   console.log('ADMIN_PASSWORD exists:', hasPassword)
   console.log('ADMIN_PASSWORD length:', process.env.ADMIN_PASSWORD?.length)
-  console.log('ADMIN_PASSWORD value (TEMP DEBUG):', process.env.ADMIN_PASSWORD)
   console.log('JWT_SECRET exists:', hasJWT)
   
   return NextResponse.json({
@@ -22,7 +21,6 @@ export async function GET() {
     adminEmail,
     hasPassword,
     passwordLength: process.env.ADMIN_PASSWORD?.length || 0,
-    passwordValue: process.env.ADMIN_PASSWORD, // TEMP DEBUG
     hasJWT,
     env: process.env.NODE_ENV
   })

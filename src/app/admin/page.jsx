@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Button } from '@/components/Button'
 import EmailServiceSelector from '@/components/EmailServiceSelector'
+import { ProtectedRoute, useAuth } from '@/hooks/useAuth'
 
 /**
  * Composant pour l'upload de fichier avec drag & drop
@@ -96,21 +96,10 @@ export default function AdminPage() {
   const [customMessage, setCustomMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState({ type: '', text: '' })
-  const router = useRouter()
+  const { logout, user } = useAuth()
 
-  // Vérifier l'authentification au chargement
-  useEffect(() => {
-    // Cette vérification sera améliorée avec un hook d'auth
-    // Pour l'instant on fait une vérification simple côté client
-  }, [])
-
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      router.push('/')
-    } catch (error) {
-      console.error('Erreur déconnexion:', error)
-    }
+  const handleLogout = () => {
+    logout()
   }
 
   const handleSubmit = async (e) => {
@@ -157,24 +146,32 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Administration BAT
-            </h1>
-            <Button 
-              onClick={handleLogout}
-              variant="outline"
-              color="red"
-            >
-              Déconnexion
-            </Button>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">
+                  Administration BAT
+                </h1>
+                {user && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Connecté en tant que {user.email}
+                  </p>
+                )}
+              </div>
+              <Button 
+                onClick={handleLogout}
+                variant="outline"
+                color="red"
+              >
+                Déconnexion
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Contenu principal */}
       <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
@@ -277,5 +274,6 @@ export default function AdminPage() {
         </div>
       </main>
     </div>
+    </ProtectedRoute>
   )
 }
